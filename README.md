@@ -8,7 +8,7 @@
 
 O Sistema de Gerenciamento de Hackathon é uma solução desenvolvida no âmbito da disciplina de Engenharia de Software com o objetivo de automatizar, organizar e otimizar todas as etapas de execução de um hackathon acadêmico.
 
-A plataforma atua como um ponto centralizador para a dinamização do evento, eliminando o controle manual e garantindo fluidez na comunicação entre participantes, comissão avaliadora e a organização.
+A plataforma atua como um ponto centralizador para a dinamização do evento, garantindo fluidez na comunicação entre participantes, comissão avaliadora e a organização.
 
 ---
 
