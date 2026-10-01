@@ -12,6 +12,12 @@ A plataforma atua como um ponto centralizador para a dinamização do evento, ga
 
 ---
 
+## 📊 Framework Utilizado
+
+- **Kanban, utilizando Notion para a atualização do quadro visual**
+
+---
+
 ## 🚀 Funcionalidades
 
 ### 👥 Módulo de Participantes e Equipes
