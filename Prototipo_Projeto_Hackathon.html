@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1º Hackathon de Ciência da Computação – IFPR</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & Space Grotesk & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            900: '#0B1020', // Deep background
+                            800: '#131A2E', // Card bg
+                            700: '#1A233D', // Card bg hover / lighter card
+                            600: '#232D48', // Subtle border
+                            500: '#313D5E'  // Hover border
+                        },
+                        indigo: {
+                            DEFAULT: '#6366F1',
+                            hover: '#4F46E5',
+                            glow: 'rgba(99, 102, 241, 0.25)'
+                        },
+                        cyan: {
+                            DEFAULT: '#22D3EE',
+                            glow: 'rgba(34, 211, 238, 0.25)'
+                        },
+                        emerald: {
+                            DEFAULT: '#22C55E'
+                        },
+                        amber: {
+                            DEFAULT: '#F59E0B'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                        code: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar and grid background pattern */
+        body {
+            background-color: #060913;
+            color: #E2E8F0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .bg-grid-pattern {
+            background-image: radial-gradient(rgba(99, 102, 241, 0.15) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .glow-indigo {
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.2);
+        }
+
+        .glow-cyan {
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+        }
+
+        .border-subtle {
+            border-color: #232D48;
+        }
+
+        /* Cursor blink animation */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .animate-cursor {
+            animation: blink 1s infinite;
+        }
+
+        /* Smooth transitions for mobile/desktop switcher viewport frame */
+        .viewport-container {
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), margin 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Custom scrollbar for inner container */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B1020;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232D48;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #313D5E;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#060913] text-slate-200 antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- TOP PROTOTYPE TOOLBAR -->
+    <header class="sticky top-0 z-50 bg-[#0B1020]/95 backdrop-blur-md border-b border-navy-600 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-2 bg-indigo-950/60 border border-indigo-500/30 px-3 py-1 rounded-lg">
+                <span class="font-code text-indigo-400 font-bold text-sm">{ IFPR }</span>
+                <span class="text-xs font-semibold text-slate-300 hidden sm:inline">Hackathon Ciência da Computação</span>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-400 border border-cyan-500/30 font-code font-medium">Protótipo v1.0</span>
+        </div>
+
+        <!-- Screen Switcher Tabs -->
+        <div class="flex items-center bg-navy-800 p-1 rounded-xl border border-navy-600 text-xs sm:text-sm">
+            <button onclick="switchScreen('login')" id="tab-login" class="px-3 py-1.5 rounded-lg font-medium transition-all flex items-center space-x-1.5 bg-indigo-600 text-white shadow">
+                <i class="fa-solid me-1 fa-right-to-bracket"></i><span>1. Login</span>
+            </button>
+            <button onclick="switchScreen('landing')" id="tab-landing" class="px-3 py-1.5 rounded-lg font-medium transition-all text-slate-400 hover:text-white flex items-center space-x-1.5">
+                <i class="fa-solid me-1 fa-house"></i><span>2. Landing Page</span>
+            </button>
+            <button onclick="switchScreen('envio')" id="tab-envio" class="px-3 py-1.5 rounded-lg font-medium transition-all text-slate-400 hover:text-white flex items-center space-x-1.5">
+                <i class="fa-solid me-1 fa-rocket"></i><span>3. Envio de Projetos</span>
+            </button>
+        </div>
+
+        <!-- Viewport Switcher (Desktop 1440px vs Mobile 390px) -->
+        <div class="flex items-center space-x-2 bg-navy-800 p-1 rounded-xl border border-navy-600 text-xs">
+            <span class="text-slate-400 px-2 hidden md:inline font-code text-[11px]">Viewport:</span>
+            <button onclick="setViewport('desktop')" id="vp-desktop" class="px-3 py-1.5 rounded-lg font-medium flex items-center space-x-1.5 bg-navy-600 text-cyan-400 border border-cyan-500/30">
+                <i class="fa-solid fa-desktop"></i>
+                <span class="hidden sm:inline">Desktop (1440px)</span>
+            </button>
+            <button onclick="setViewport('mobile')" id="vp-mobile" class="px-3 py-1.5 rounded-lg font-medium flex items-center space-x-1.5 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+                <span class="hidden sm:inline">Mobile (390px)</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- VIEWPORT CONTAINER CONTAINER WRAPPER -->
+    <main class="flex-1 flex justify-center items-start p-2 sm:p-6 overflow-x-auto">
+        <div id="viewport-frame" class="viewport-container w-full max-w-[1440px] bg-navy-900 border border-navy-600 rounded-2xl shadow-2xl overflow-hidden min-h-[850px] relative transition-all duration-300">
+            
+            <!-- ========================================== -->
+            <!-- TELA 1: LOGIN PAGE -->
+            <!-- ========================================== -->
+            <section id="screen-login" class="min-h-[850px] flex flex-col justify-between bg-navy-900 bg-grid-pattern relative">
+                
+                <!-- Login Interactive Controls Bar -->
+                <div class="bg-navy-800/90 border-b border-navy-600 p-3 px-6 flex flex-wrap items-center justify-between text-xs gap-3">
+                    <div class="flex items-center space-x-2 text-slate-400 font-code">
+                        <i class="fa-solid fa-sliders text-cyan-400"></i>
+                        <span>Simulador de Estado (Login):</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="setLoginState('standard')" id="btn-state-standard" class="px-2.5 py-1 rounded bg-indigo-600/30 text-indigo-300 border border-indigo-500/50 hover:bg-indigo-600/50">Padrão</button>
+                        <button onclick="setLoginState('error')" id="btn-state-error" class="px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600 hover:bg-navy-600">Erro Credenciais</button>
+                        <button onclick="setLoginState('loading')" id="btn-state-loading" class="px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600 hover:bg-navy-600">Carregando</button>
+                    </div>
+                </div>
+
+                <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-[750px]">
+                    <!-- Left Column: Login Form -->
+                    <div class="lg:col-span-6 p-6 sm:p-12 md:p-16 flex flex-col justify-center max-w-xl mx-auto w-full">
+                        
+                        <!-- Header / Logo -->
+                        <div class="mb-8">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                                    <i class="fa-solid fa-code text-slate-950 font-bold text-lg"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-code text-cyan-400 tracking-wider uppercase block">IFPR Campus Pinhais / Curitiba</span>
+                                    <h1 class="font-heading font-bold text-lg text-white">Hackathon Ciência da Computação</h1>
+                                </div>
+                            </div>
+                            <p class="text-slate-400 text-sm">Acesse a plataforma oficial do evento para gerenciar sua equipe e envios.</p>
+                        </div>
+
+                        <!-- Role Switcher -->
+                        <div class="bg-navy-800 p-1 rounded-xl border border-navy-600 grid grid-cols-3 gap-1 mb-6">
+                            <button onclick="selectRole('participante')" id="role-participante" class="py-2 px-3 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow text-center transition-all">
+                                <i class="fa-solid fa-user-group me-1.5"></i>Participante
+                            </button>
+                            <button onclick="selectRole('jurado')" id="role-jurado" class="py-2 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white text-center transition-all">
+                                <i class="fa-solid fa-gavel me-1.5"></i>Jurado
+                            </button>
+                            <button onclick="selectRole('organizacao')" id="role-organizacao" class="py-2 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white text-center transition-all">
+                                <i class="fa-solid fa-shield-halved me-1.5"></i>Organização
+                            </button>
+                        </div>
+
+                        <!-- Credential Error Alert Box -->
+                        <div id="login-error-alert" class="hidden mb-6 p-3.5 bg-rose-950/60 border border-rose-500/50 rounded-xl text-rose-300 text-xs flex items-center space-x-3 animate-shake">
+                            <i class="fa-solid fa-circle-exclamation text-rose-400 text-base flex-shrink-0"></i>
+                            <div>
+                                <p class="font-semibold">Erro de autenticação</p>
+                                <p class="text-rose-300/80">E-mail institucional ou senha incorretos. Tente novamente.</p>
+                            </div>
+                        </div>
+
+                        <!-- Form -->
+                        <form onsubmit="handleLoginSubmit(event)" class="space-y-5">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1.5 font-code">E-mail Institucional</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                                        <i class="fa-solid fa-envelope"></i>
+                                    </div>
+                                    <input type="email" id="login-email" required value="aluno.equipe@ifpr.edu.br" placeholder="seu.nome@aluno.ifpr.edu.br" 
+                                           class="w-full bg-navy-800 border border-navy-600 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label class="block text-xs font-medium text-slate-300 font-code">Senha</label>
+                                    <a href="#" onclick="alert('Instruções de recuperação foram enviadas ao seu e-mail institucional.'); return false;" class="text-xs text-indigo-400 hover:text-indigo-300 hover:underline">Esqueci minha senha</a>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                                        <i class="fa-solid fa-lock"></i>
+                                    </div>
+                                    <input type="password" id="login-password" required value="senha123456" placeholder="••••••••••••" 
+                                           class="w-full bg-navy-800 border border-navy-600 rounded-xl pl-10 pr-10 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                                    <button type="button" onclick="togglePasswordVisibility('login-password', 'pwd-icon')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200">
+                                        <i id="pwd-icon" class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="btn-login-submit" class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/30 transition duration-200 flex items-center justify-center space-x-2">
+                                <span id="login-btn-text">Entrar na Plataforma</span>
+                                <i id="login-btn-spinner" class="fa-solid fa-circle-notch fa-spin hidden"></i>
+                            </button>
+
+                            <div class="relative flex py-2 items-center">
+                                <div class="flex-grow border-t border-navy-600"></div>
+                                <span class="flex-shrink mx-4 text-xs text-slate-500 font-code">ou</span>
+                                <div class="flex-grow border-t border-navy-600"></div>
+                            </div>
+
+                            <button type="button" onclick="switchScreen('envio')" class="w-full py-3 px-4 bg-navy-800 hover:bg-navy-700 text-slate-200 font-medium rounded-xl border border-navy-600 transition flex items-center justify-center space-x-2 text-xs sm:text-sm">
+                                <i class="fa-solid fa-building-columns text-cyan-400"></i>
+                                <span>Entrar com conta institucional (SUAP / IFPR)</span>
+                            </button>
+                        </form>
+
+                        <!-- Footer Link -->
+                        <p class="mt-8 text-center text-xs text-slate-400">
+                            Ainda não tem conta? 
+                            <a href="#" onclick="switchScreen('landing'); return false;" class="text-indigo-400 font-semibold hover:underline">Registre sua equipe</a>
+                        </p>
+                    </div>
+
+                    <!-- Right Panel: Visual Showcase -->
+                    <div class="lg:col-span-6 bg-gradient-to-br from-navy-800 via-navy-900 to-[#070A15] p-8 sm:p-12 lg:p-16 border-t lg:border-t-0 lg:border-l border-navy-600 flex flex-col justify-between relative overflow-hidden">
+                        <!-- Decorative background accents -->
+                        <div class="absolute -top-24 -right-24 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                        <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                        <!-- Top Tag -->
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-code font-medium bg-indigo-950 text-indigo-400 border border-indigo-500/30">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping me-2"></span>
+                                Presencial • Evento Acadêmico
+                            </span>
+                        </div>
+
+                        <!-- Middle Content -->
+                        <div class="my-12">
+                            <div class="text-cyan-400 font-code text-sm font-semibold mb-3 tracking-wide">{ IFPR_HACKATHON_2026 }</div>
+                            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-white leading-tight mb-4">
+                                Construa.<br>
+                                Entregue.<br>
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400">Seja avaliado.</span>
+                            </h2>
+                            <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-lg mb-8">
+                                Maratona intensiva de programação e solução de problemas para alunos de Ciência da Computação e cursos correlatos do IFPR.
+                            </p>
+
+                            <!-- Key Figures Grid (NOTE: No date/time schedule here as requested) -->
+                            <div class="grid grid-cols-3 gap-4 border-t border-navy-600 pt-6">
+                                <div>
+                                    <div class="font-heading font-bold text-2xl sm:text-3xl text-white font-code">15–25</div>
+                                    <div class="text-xs text-slate-400 mt-1">Equipes inscritas</div>
+                                </div>
+                                <div>
+                                    <div class="font-heading font-bold text-2xl sm:text-3xl text-cyan-400 font-code">24–48h</div>
+                                    <div class="text-xs text-slate-400 mt-1">Imersão total</div>
+                                </div>
+                                <div>
+                                    <div class="font-heading font-bold text-2xl sm:text-3xl text-indigo-400 font-code">[ 5 ]</div>
+                                    <div class="text-xs text-slate-400 mt-1">Jurados especialistas</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Code Snippet Box -->
+                        <div class="bg-navy-950/80 border border-navy-600 rounded-xl p-4 font-code text-xs text-slate-300">
+                            <div class="flex items-center space-x-2 text-slate-500 mb-2 border-b border-navy-700/50 pb-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block"></span>
+                                <span class="ml-2 text-[11px]">hackathon_config.py</span>
+                            </div>
+                            <p><span class="text-purple-400">class</span> <span class="text-cyan-300">HackathonIFPR</span>:</p>
+                            <p class="pl-4"><span class="text-indigo-300">modalidade</span> = <span class="text-emerald-300">"Presencial"</span></p>
+                            <p class="pl-4"><span class="text-indigo-300">avaliacao</span> = <span class="text-emerald-300">"Banca de Jurados por Criterios"</span></p>
+                            <p class="pl-4"><span class="text-indigo-300">status</span> = <span class="text-cyan-400">"Inscricoes_Abertas"</span> <span class="animate-cursor text-cyan-400">|</span></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- TELA 2: LANDING PAGE -->
+            <!-- ========================================== -->
+            <section id="screen-landing" class="hidden min-h-[850px] bg-navy-900">
+                
+                <!-- Navbar -->
+                <nav class="sticky top-0 z-40 bg-navy-900/90 backdrop-blur-md border-b border-navy-600 px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-code font-bold text-white text-sm shadow-md">
+                            {IF}
+                        </div>
+                        <div>
+                            <span class="text-xs font-code text-indigo-400 font-semibold block">1º HACKATHON</span>
+                            <span class="text-sm font-heading font-bold text-white">Ciência da Computação IFPR</span>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Links -->
+                    <div class="hidden md:flex items-center space-x-6 text-xs font-medium text-slate-300">
+                        <a href="#sobre" class="hover:text-cyan-400 transition">Sobre</a>
+                        <a href="#cronograma" class="hover:text-cyan-400 transition">Cronograma</a>
+                        <a href="#regras" class="hover:text-cyan-400 transition">Regras</a>
+                        <a href="#avaliacao" class="hover:text-cyan-400 transition">Avaliação</a>
+                        <a href="#faq" class="hover:text-cyan-400 transition">FAQ</a>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <button onclick="switchScreen('login')" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white border border-navy-600 hover:border-slate-500 transition">
+                            Entrar
+                        </button>
+                        <button onclick="switchScreen('login')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 transition">
+                            Registrar equipe
+                        </button>
+                    </div>
+                </nav>
+
+                <!-- Hero Section -->
+                <div class="relative px-6 py-16 sm:py-24 max-w-5xl mx-auto text-center bg-grid-pattern">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 text-xs font-code mb-6">
+                        <i class="fa-solid fa-location-dot text-cyan-400"></i>
+                        <span>Presencial • Campus IFPR • Maratona Acadêmica</span>
+                    </div>
+
+                    <h1 class="text-3xl sm:text-5xl lg:text-6xl font-heading font-extrabold text-white tracking-tight leading-tight mb-6">
+                        1º Hackathon de <br class="hidden sm:inline">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400">Ciência da Computação</span>
+                    </h1>
+
+                    <p class="text-slate-300 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+                        Desenvolva soluções tecnológicas inovadoras, aprenda com mentores da indústria e apresente seu projeto para uma banca examinadora em 24 a 48 horas de imersão.
+                    </p>
+
+                    <!-- Countdown Component -->
+                    <div class="bg-navy-800/80 border border-navy-600 rounded-2xl p-4 sm:p-6 max-w-lg mx-auto mb-10 shadow-xl backdrop-blur">
+                        <div class="text-xs font-code text-cyan-400 mb-3 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-stopwatch animate-pulse"></i>
+                            <span>CONTAGEM REGRESSIVA PARA O INÍCIO</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 text-center font-code">
+                            <div class="bg-navy-900 p-2 sm:p-3 rounded-xl border border-navy-600">
+                                <span class="block text-xl sm:text-3xl font-bold text-white" id="cd-days">14</span>
+                                <span class="text-[10px] text-slate-400 uppercase">Dias</span>
+                            </div>
+                            <div class="bg-navy-900 p-2 sm:p-3 rounded-xl border border-navy-600">
+                                <span class="block text-xl sm:text-3xl font-bold text-white" id="cd-hours">08</span>
+                                <span class="text-[10px] text-slate-400 uppercase">Horas</span>
+                            </div>
+                            <div class="bg-navy-900 p-2 sm:p-3 rounded-xl border border-navy-600">
+                                <span class="block text-xl sm:text-3xl font-bold text-white" id="cd-mins">42</span>
+                                <span class="text-[10px] text-slate-400 uppercase">Min</span>
+                            </div>
+                            <div class="bg-navy-900 p-2 sm:p-3 rounded-xl border border-navy-600">
+                                <span class="block text-xl sm:text-3xl font-bold text-cyan-400" id="cd-secs">19</span>
+                                <span class="text-[10px] text-slate-400 uppercase">Seg</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <button onclick="switchScreen('login')" class="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-xl shadow-indigo-600/30 transition text-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-users-rectangle"></i>
+                            <span>Registrar minha equipe</span>
+                        </button>
+                        <a href="#regras" class="w-full sm:w-auto px-8 py-4 bg-navy-800 hover:bg-navy-700 text-slate-200 font-semibold rounded-xl border border-navy-600 transition text-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-book-bookmark text-cyan-400"></i>
+                            <span>Ver regras do evento</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Stats Strip -->
+                <div class="border-y border-navy-600 bg-navy-800/50 py-8 px-6">
+                    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                        <div>
+                            <div class="font-heading font-bold text-2xl sm:text-3xl text-indigo-400 font-code">15–25</div>
+                            <div class="text-xs text-slate-400 mt-1">Equipes Vagas Limitadas</div>
+                        </div>
+                        <div>
+                            <div class="font-heading font-bold text-2xl sm:text-3xl text-cyan-400 font-code">3–5</div>
+                            <div class="text-xs text-slate-400 mt-1">Integrantes por equipe</div>
+                        </div>
+                        <div>
+                            <div class="font-heading font-bold text-2xl sm:text-3xl text-emerald-400 font-code">24–48h</div>
+                            <div class="text-xs text-slate-400 mt-1">Duração da Maratona</div>
+                        </div>
+                        <div>
+                            <div class="font-heading font-bold text-2xl sm:text-3xl text-amber-400 font-code">R$ 5.000+</div>
+                            <div class="text-xs text-slate-400 mt-1">Prêmios & Certificados</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Como Funciona Section -->
+                <div id="sobre" class="max-w-6xl mx-auto px-6 py-16">
+                    <div class="text-center mb-12">
+                        <span class="text-xs font-code text-cyan-400 font-semibold uppercase tracking-wider">PASSO A PASSO</span>
+                        <h2 class="text-2xl sm:text-3xl font-heading font-bold text-white mt-1">Como funciona a maratona</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-600 relative hover:border-indigo-500/50 transition">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-950 text-indigo-400 font-code font-bold flex items-center justify-center mb-4 border border-indigo-500/30">01</div>
+                            <h3 class="font-heading font-bold text-white text-base mb-2">1. Registre a equipe</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Monte seu time de 3 a 5 alunos e faça o cadastro oficial até a data limite.</p>
+                        </div>
+
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-600 relative hover:border-indigo-500/50 transition">
+                            <div class="w-10 h-10 rounded-xl bg-cyan-950 text-cyan-400 font-code font-bold flex items-center justify-center mb-4 border border-cyan-500/30">02</div>
+                            <h3 class="font-heading font-bold text-white text-base mb-2">2. Desenvolva o projeto</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Crie protótipos de software ou hardware durante as horas de coding presencial no IFPR.</p>
+                        </div>
+
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-600 relative hover:border-indigo-500/50 transition">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-950 text-emerald-400 font-code font-bold flex items-center justify-center mb-4 border border-emerald-500/30">03</div>
+                            <h3 class="font-heading font-bold text-white text-base mb-2">3. Envie a entrega</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Submeta o repositório GitHub, link de demonstração e PDF da apresentação do pitch.</p>
+                        </div>
+
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-600 relative hover:border-indigo-500/50 transition">
+                            <div class="w-10 h-10 rounded-xl bg-amber-950 text-amber-400 font-code font-bold flex items-center justify-center mb-4 border border-amber-500/30">04</div>
+                            <h3 class="font-heading font-bold text-white text-base mb-2">4. Seja avaliado</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Apresente para os jurados e receba notas transparentes divididas por critérios.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cronograma Section -->
+                <div id="cronograma" class="bg-navy-800/30 border-y border-navy-600 py-16 px-6">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="text-center mb-12">
+                            <span class="text-xs font-code text-indigo-400 font-semibold uppercase tracking-wider">LINHA DO TEMPO</span>
+                            <h2 class="text-2xl sm:text-3xl font-heading font-bold text-white mt-1">Cronograma do Evento</h2>
+                        </div>
+
+                        <div class="relative border-l-2 border-indigo-500/30 ml-4 sm:ml-32 space-y-8">
+                            <!-- Timeline Item 1 -->
+                            <div class="relative pl-6 sm:pl-8">
+                                <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-indigo-600 border-4 border-navy-900"></div>
+                                <div class="sm:absolute sm:-left-36 sm:top-1 font-code text-xs text-cyan-400 font-semibold mb-1 sm:mb-0">
+                                    08:00 • Dia 1
+                                </div>
+                                <div class="bg-navy-800 p-4 rounded-xl border border-navy-600">
+                                    <h4 class="font-heading font-bold text-white text-sm">Abertura e Check-in Presencial</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Credenciamento no auditório principal, anúncio do tema surpresa e briefing inicial.</p>
+                                </div>
+                            </div>
+
+                            <!-- Timeline Item 2 -->
+                            <div class="relative pl-6 sm:pl-8">
+                                <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-indigo-600 border-4 border-navy-900"></div>
+                                <div class="sm:absolute sm:-left-36 sm:top-1 font-code text-xs text-cyan-400 font-semibold mb-1 sm:mb-0">
+                                    10:00 • Dia 1
+                                </div>
+                                <div class="bg-navy-800 p-4 rounded-xl border border-navy-600">
+                                    <h4 class="font-heading font-bold text-white text-sm">Início da Maratona de Código</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Liberação dos laboratórios de informática e espaços colaborativos.</p>
+                                </div>
+                            </div>
+
+                            <!-- Timeline Item 3 -->
+                            <div class="relative pl-6 sm:pl-8">
+                                <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-cyan-400 border-4 border-navy-900"></div>
+                                <div class="sm:absolute sm:-left-36 sm:top-1 font-code text-xs text-cyan-400 font-semibold mb-1 sm:mb-0">
+                                    15:00 • Dia 1
+                                </div>
+                                <div class="bg-navy-800 p-4 rounded-xl border border-navy-600">
+                                    <h4 class="font-heading font-bold text-white text-sm">Sessão de Mentorias Técnicas</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Professores e mentores de mercado tiram dúvidas de arquitetura e pitch.</p>
+                                </div>
+                            </div>
+
+                            <!-- Timeline Item 4 -->
+                            <div class="relative pl-6 sm:pl-8">
+                                <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-amber-400 border-4 border-navy-900"></div>
+                                <div class="sm:absolute sm:-left-36 sm:top-1 font-code text-xs text-amber-400 font-semibold mb-1 sm:mb-0">
+                                    12:00 • Dia 2
+                                </div>
+                                <div class="bg-navy-800 p-4 rounded-xl border border-navy-600 border-l-4 border-l-amber-400">
+                                    <h4 class="font-heading font-bold text-white text-sm">Prazo Limite de Envio na Plataforma</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Encerramento das submissões de código no sistema oficial.</p>
+                                </div>
+                            </div>
+
+                            <!-- Timeline Item 5 -->
+                            <div class="relative pl-6 sm:pl-8">
+                                <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-emerald-400 border-4 border-navy-900"></div>
+                                <div class="sm:absolute sm:-left-36 sm:top-1 font-code text-xs text-emerald-400 font-semibold mb-1 sm:mb-0">
+                                    14:00 • Dia 2
+                                </div>
+                                <div class="bg-navy-800 p-4 rounded-xl border border-navy-600">
+                                    <h4 class="font-heading font-bold text-white text-sm">Apresentações dos Pitches & Avaliação</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Apresentação de 3 minutos para a banca de jurados no auditório.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Critérios de Avaliação Section -->
+                <div id="avaliacao" class="max-w-6xl mx-auto px-6 py-16">
+                    <div class="text-center mb-12">
+                        <span class="text-xs font-code text-cyan-400 font-semibold uppercase tracking-wider">TRANSPARÊNCIA</span>
+                        <h2 class="text-2xl sm:text-3xl font-heading font-bold text-white mt-1">Critérios de Avaliação</h2>
+                        <p class="text-slate-400 text-xs sm:text-sm mt-2">Cada jurado atribuirá notas de 0 a 10 com os seguintes pesos definidos no regulamento.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Critério 1 -->
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-600">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xs font-code font-bold text-indigo-400 bg-indigo-950 px-2.5 py-1 rounded-lg border border-indigo-500/30">Peso 30%</span>
+                                <span class="text-xs text-slate-400 font-code">Nota 0–10</span>
+                            </div>
+                            <h3 class="font-heading font-bold text-white text-lg mb-2">Inovação e Originalidade</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Originalidade da proposta, criatividade na solução do problema e uso inteligente da tecnologia.</p>
+                        </div>
+
+                        <!-- Critério 2 -->
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-600">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xs font-code font-bold text-cyan-400 bg-cyan-950 px-2.5 py-1 rounded-lg border border-cyan-500/30">Peso 25%</span>
+                                <span class="text-xs text-slate-400 font-code">Nota 0–10</span>
+                            </div>
+                            <h3 class="font-heading font-bold text-white text-lg mb-2">Qualidade Técnica</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Arquitetura de código, boas práticas de desenvolvimento, segurança e utilização do repositório.</p>
+                        </div>
+
+                        <!-- Critério 3 -->
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-600">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xs font-code font-bold text-emerald-400 bg-emerald-950 px-2.5 py-1 rounded-lg border border-emerald-500/30">Peso 20%</span>
+                                <span class="text-xs text-slate-400 font-code">Nota 0–10</span>
+                            </div>
+                            <h3 class="font-heading font-bold text-white text-lg mb-2">Funcionamento da Demo</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Estabilidade do protótipo funcional ao vivo, ausência de falhas graves e navegabilidade da interface.</p>
+                        </div>
+
+                        <!-- Critério 4 -->
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-600">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xs font-code font-bold text-amber-400 bg-amber-950 px-2.5 py-1 rounded-lg border border-amber-500/30">Peso 15%</span>
+                                <span class="text-xs text-slate-400 font-code">Nota 0–10</span>
+                            </div>
+                            <h3 class="font-heading font-bold text-white text-lg mb-2">Impacto e Utilidade</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Potencial de aplicação real da solução, benefício para a comunidade ou relevância do problema resolvido.</p>
+                        </div>
+
+                        <!-- Critério 5 -->
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-600 md:col-span-2">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xs font-code font-bold text-purple-400 bg-purple-950 px-2.5 py-1 rounded-lg border border-purple-500/30">Peso 10%</span>
+                                <span class="text-xs text-slate-400 font-code">Nota 0–10</span>
+                            </div>
+                            <h3 class="font-heading font-bold text-white text-lg mb-2">Apresentação / Pitch</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Clareza e objetividade na apresentação oral da equipe dentro do tempo limite de 3 minutos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jurados Section -->
+                <div class="bg-navy-800/30 border-y border-navy-600 py-16 px-6">
+                    <div class="max-w-6xl mx-auto">
+                        <div class="text-center mb-12">
+                            <span class="text-xs font-code text-cyan-400 font-semibold uppercase tracking-wider">BANCA EXAMINADORA</span>
+                            <h2 class="text-2xl sm:text-3xl font-heading font-bold text-white mt-1">Jurados Confirmados</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <!-- Jurado 1 -->
+                            <div class="bg-navy-800 p-5 rounded-2xl border border-navy-600 text-center">
+                                <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 p-1 mx-auto mb-4">
+                                    <div class="w-full h-full rounded-full bg-navy-900 flex items-center justify-center text-xl font-bold font-code text-cyan-300">
+                                        DR
+                                    </div>
+                                </div>
+                                <h4 class="font-heading font-bold text-white text-base">Prof. Dr. Ricardo Silva</h4>
+                                <p class="text-xs text-indigo-400 mt-0.5">Docente de IA & Algoritmos</p>
+                                <span class="inline-block mt-3 px-2.5 py-1 rounded bg-navy-900 text-[11px] text-slate-400 font-code border border-navy-700">IFPR Campus Pinhais</span>
+                            </div>
+
+                            <!-- Jurado 2 -->
+                            <div class="bg-navy-800 p-5 rounded-2xl border border-navy-600 text-center">
+                                <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-cyan-400 to-emerald-400 p-1 mx-auto mb-4">
+                                    <div class="w-full h-full rounded-full bg-navy-900 flex items-center justify-center text-xl font-bold font-code text-emerald-300">
+                                        MS
+                                    </div>
+                                </div>
+                                <h4 class="font-heading font-bold text-white text-base">Profa. Msc. Ana Mendes</h4>
+                                <p class="text-xs text-indigo-400 mt-0.5">Engenharia de Software</p>
+                                <span class="inline-block mt-3 px-2.5 py-1 rounded bg-navy-900 text-[11px] text-slate-400 font-code border border-navy-700">IFPR Curitiba</span>
+                            </div>
+
+                            <!-- Jurado 3 -->
+                            <div class="bg-navy-800 p-5 rounded-2xl border border-navy-600 text-center">
+                                <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 p-1 mx-auto mb-4">
+                                    <div class="w-full h-full rounded-full bg-navy-900 flex items-center justify-center text-xl font-bold font-code text-purple-300">
+                                        TL
+                                    </div>
+                                </div>
+                                <h4 class="font-heading font-bold text-white text-base">Carlos Eduardo Santos</h4>
+                                <p class="text-xs text-indigo-400 mt-0.5">Tech Lead & Arquiteto Cloud</p>
+                                <span class="inline-block mt-3 px-2.5 py-1 rounded bg-navy-900 text-[11px] text-slate-400 font-code border border-navy-700">Empresa Parceira Tech</span>
+                            </div>
+
+                            <!-- Jurado 4 -->
+                            <div class="bg-navy-800 p-5 rounded-2xl border border-navy-600 text-center">
+                                <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-400 to-rose-400 p-1 mx-auto mb-4">
+                                    <div class="w-full h-full rounded-full bg-navy-900 flex items-center justify-center text-xl font-bold font-code text-amber-300">
+                                        UX
+                                    </div>
+                                </div>
+                                <h4 class="font-heading font-bold text-white text-base">Beatriz Oliveira</h4>
+                                <p class="text-xs text-indigo-400 mt-0.5">Head de Produto & UX</p>
+                                <span class="inline-block mt-3 px-2.5 py-1 rounded bg-navy-900 text-[11px] text-slate-400 font-code border border-navy-700">Polo Tecnológico</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regras & FAQ Accordion Section -->
+                <div id="regras" class="max-w-4xl mx-auto px-6 py-16 space-y-12">
+                    <!-- Regras Accordion -->
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-heading font-bold text-white mb-6 flex items-center space-x-2">
+                            <i class="fa-solid fa-scroll text-indigo-400"></i>
+                            <span>Regulamento & Diretrizes</span>
+                        </h2>
+                        <div class="space-y-3">
+                            <div class="bg-navy-800 rounded-xl border border-navy-600 overflow-hidden">
+                                <button onclick="toggleAccordion('rule-1')" class="w-full p-4 text-left font-medium text-sm text-white flex justify-between items-center hover:bg-navy-700/50">
+                                    <span> Quem pode participar do hackathon?</span>
+                                    <i id="rule-1-icon" class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                                </button>
+                                <div id="rule-1" class="hidden p-4 pt-0 text-xs text-slate-400 border-t border-navy-700/50 leading-relaxed">
+                                    O evento é voltado prioritariamente para alunos matriculados nos cursos de Ciência da Computação, Licenciatura em Computação e cursos técnicos correlatos do IFPR. Cada equipe pode ter até 1 membro convidado externo.
+                                </div>
+                            </div>
+
+                            <div class="bg-navy-800 rounded-xl border border-navy-600 overflow-hidden">
+                                <button onclick="toggleAccordion('rule-2')" class="w-full p-4 text-left font-medium text-sm text-white flex justify-between items-center hover:bg-navy-700/50">
+                                    <span> Código pré-existente e bibliotecas reutilizáveis</span>
+                                    <i id="rule-2-icon" class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                                </button>
+                                <div id="rule-2" class="hidden p-4 pt-0 text-xs text-slate-400 border-t border-navy-700/50 leading-relaxed">
+                                    Todo o código principal da aplicação deve ser escrito durante o período do hackathon. É permitido o uso de frameworks, bibliotecas open-source e APIs públicas pré-existentes.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Accordion -->
+                    <div id="faq">
+                        <h2 class="text-xl sm:text-2xl font-heading font-bold text-white mb-6 flex items-center space-x-2">
+                            <i class="fa-solid fa-circle-question text-cyan-400"></i>
+                            <span>Perguntas Frequentes (FAQ)</span>
+                        </h2>
+                        <div class="space-y-3">
+                            <div class="bg-navy-800 rounded-xl border border-navy-600 overflow-hidden">
+                                <button onclick="toggleAccordion('faq-1')" class="w-full p-4 text-left font-medium text-sm text-white flex justify-between items-center hover:bg-navy-700/50">
+                                    <span> O evento fornece alimentação no local?</span>
+                                    <i id="faq-1-icon" class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                                </button>
+                                <div id="faq-1" class="hidden p-4 pt-0 text-xs text-slate-400 border-t border-navy-700/50 leading-relaxed">
+                                    Sim! Haverá infraestrutura com lanches, café contínuo e refeições organizadas para os participantes inscritos na maratona presencial.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final CTA -->
+                <div class="bg-gradient-to-r from-indigo-900/60 via-navy-800 to-cyan-950/60 border-t border-navy-600 py-16 px-6 text-center">
+                    <div class="max-w-2xl mx-auto">
+                        <h2 class="text-2xl sm:text-3xl font-heading font-bold text-white mb-4">Sua equipe está pronta para o desafio?</h2>
+                        <p class="text-slate-300 text-xs sm:text-sm mb-8">As vagas são limitadas para garantir a melhor infraestrutura de laboratório para todos.</p>
+                        <button onclick="switchScreen('login')" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-xl shadow-indigo-600/30 transition text-sm">
+                            Registrar equipe agora
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <footer class="bg-navy-950 border-t border-navy-600 py-12 px-6 text-xs text-slate-400">
+                    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                        <div>
+                            <div class="flex items-center space-x-2 font-code font-bold text-white text-sm mb-3">
+                                <span class="text-indigo-400">{ IFPR }</span>
+                                <span>Hackathon CC</span>
+                            </div>
+                            <p class="text-slate-400 text-[11px] leading-relaxed">
+                                Realização do Curso de Ciência da Computação do Instituto Federal do Paraná (IFPR).
+                            </p>
+                        </div>
+
+                        <div>
+                            <h5 class="font-heading font-bold text-white mb-3">Apoio & Parceiros</h5>
+                            <div class="space-y-1.5 text-[11px] text-slate-400 font-code">
+                                <div>• Diretoria de Pesquisa e Extensão</div>
+                                <div>• Empresa Júnior de Tecnologia</div>
+                                <div>• Comunidade Tech Local</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h5 class="font-heading font-bold text-white mb-3">Contato</h5>
+                            <p class="text-[11px]">hackathon.cc@ifpr.edu.br</p>
+                            <p class="text-[11px] mt-1">Campus IFPR - Coordenação de Computação</p>
+                        </div>
+
+                        <div>
+                            <h5 class="font-heading font-bold text-white mb-3">Links Rápidos</h5>
+                            <div class="space-y-1 text-[11px]">
+                                <div><a href="#sobre" class="hover:text-cyan-400">Sobre o evento</a></div>
+                                <div><a href="#regras" class="hover:text-cyan-400">Regulamento oficial</a></div>
+                                <div><a href="#" onclick="switchScreen('login')" class="hover:text-cyan-400">Área do Participante</a></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="max-w-6xl mx-auto border-t border-navy-800 pt-6 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-500">
+                        <div>© 2026 IFPR - Instituto Federal do Paraná. Todos os direitos reservados.</div>
+                        <div class="font-code mt-2 sm:mt-0">Desenvolvido para a Plataforma de Eventos</div>
+                    </div>
+                </footer>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- TELA 3: ENVIO DE PROJETOS (ÁREA LOGADA) -->
+            <!-- ========================================== -->
+            <section id="screen-envio" class="hidden min-h-[850px] bg-navy-900">
+                
+                <!-- Submission Controls / Simulator -->
+                <div class="bg-navy-800/90 border-b border-navy-600 p-3 px-6 flex flex-wrap items-center justify-between text-xs gap-3">
+                    <div class="flex items-center space-x-2 text-slate-400 font-code">
+                        <i class="fa-solid fa-sliders text-cyan-400"></i>
+                        <span>Simulador de Estado (Dashboard):</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="setDashboardState('draft')" id="dash-btn-draft" class="px-2.5 py-1 rounded bg-indigo-600/30 text-indigo-300 border border-indigo-500/50">Rascunho</button>
+                        <button onclick="setDashboardState('error')" id="dash-btn-error" class="px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600">Erro Validação</button>
+                        <button onclick="setDashboardState('evaluated')" id="dash-btn-eval" class="px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600">Ver Avaliação/Notas</button>
+                        <button onclick="setDashboardState('closed')" id="dash-btn-closed" class="px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600">Prazo Encerrado</button>
+                    </div>
+                </div>
+
+                <!-- Logged In Header -->
+                <nav class="bg-navy-800 border-b border-navy-600 px-6 py-3.5 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></span>
+                            <span class="font-heading font-bold text-white text-sm sm:text-base">Equipe ByteCraft #04</span>
+                        </div>
+                        <span id="header-status-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-code bg-amber-950 text-amber-300 border border-amber-500/30">
+                            Rascunho
+                        </span>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <div class="text-right hidden sm:block">
+                            <div class="text-xs font-medium text-white">Lucas Andrade (Líder)</div>
+                            <div class="text-[10px] text-slate-400 font-code">lucas.bytecraft@aluno.ifpr.edu.br</div>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white border border-indigo-400">
+                            LA
+                        </div>
+                        <button onclick="switchScreen('login')" title="Sair" class="text-slate-400 hover:text-white p-1">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                </nav>
+
+                <!-- Dashboard Content Container -->
+                <div class="p-4 sm:p-8 max-w-7xl mx-auto">
+                    
+                    <!-- Wizard Progress Tracker (4 Steps) -->
+                    <div class="mb-8 bg-navy-800 p-4 sm:p-6 rounded-2xl border border-navy-600">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <button onclick="setWizardStep(1)" id="wizard-tab-1" class="flex items-center space-x-3 p-3 rounded-xl bg-indigo-600 text-white shadow text-left transition">
+                                <span class="w-7 h-7 rounded-lg bg-white/20 font-code text-xs font-bold flex items-center justify-center flex-shrink-0">1</span>
+                                <div class="overflow-hidden">
+                                    <div class="text-xs font-semibold">Dados do Projeto</div>
+                                    <div class="text-[10px] opacity-80 truncate">Informações principais</div>
+                                </div>
+                            </button>
+
+                            <button onclick="setWizardStep(2)" id="wizard-tab-2" class="flex items-center space-x-3 p-3 rounded-xl bg-navy-900 text-slate-400 hover:text-white border border-navy-700 text-left transition">
+                                <span class="w-7 h-7 rounded-lg bg-navy-800 font-code text-xs font-bold flex items-center justify-center flex-shrink-0">2</span>
+                                <div class="overflow-hidden">
+                                    <div class="text-xs font-semibold">Equipe</div>
+                                    <div class="text-[10px] opacity-70 truncate">3 a 5 integrantes</div>
+                                </div>
+                            </button>
+
+                            <button onclick="setWizardStep(3)" id="wizard-tab-3" class="flex items-center space-x-3 p-3 rounded-xl bg-navy-900 text-slate-400 hover:text-white border border-navy-700 text-left transition">
+                                <span class="w-7 h-7 rounded-lg bg-navy-800 font-code text-xs font-bold flex items-center justify-center flex-shrink-0">3</span>
+                                <div class="overflow-hidden">
+                                    <div class="text-xs font-semibold">Arquivos & Links</div>
+                                    <div class="text-[10px] opacity-70 truncate">GitHub, Pitch, Screenshots</div>
+                                </div>
+                            </button>
+
+                            <button onclick="setWizardStep(4)" id="wizard-tab-4" class="flex items-center space-x-3 p-3 rounded-xl bg-navy-900 text-slate-400 hover:text-white border border-navy-700 text-left transition">
+                                <span class="w-7 h-7 rounded-lg bg-navy-800 font-code text-xs font-bold flex items-center justify-center flex-shrink-0">4</span>
+                                <div class="overflow-hidden">
+                                    <div class="text-xs font-semibold">Revisão & Envio</div>
+                                    <div class="text-[10px] opacity-70 truncate">Checklist final</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Main Grid Layout (Form Wizard Left + Sticky Sidebar Right) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        
+                        <!-- Form Wizard Content Column -->
+                        <div class="lg:col-span-8 space-y-6">
+                            
+                            <!-- Validation Banner (If Error State) -->
+                            <div id="dash-error-banner" class="hidden p-4 bg-rose-950/60 border border-rose-500/50 rounded-xl text-rose-300 text-xs flex items-center space-x-3">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-400 text-lg flex-shrink-0"></i>
+                                <div>
+                                    <p class="font-bold">Atenção: Existem pendências no preenchimento!</p>
+                                    <p class="text-rose-300/80">Preencha o resumo com até 200 caracteres e adicione o link público do repositório no GitHub.</p>
+                                </div>
+                            </div>
+
+                            <!-- ETAPA 1: DADOS DO PROJETO -->
+                            <div id="step-1-content" class="bg-navy-800 p-6 rounded-2xl border border-navy-600 space-y-5">
+                                <h3 class="font-heading font-bold text-white text-base border-b border-navy-700 pb-3 flex items-center space-x-2">
+                                    <i class="fa-solid fa-circle-info text-indigo-400"></i>
+                                    <span>Etapa 1: Dados do Projeto</span>
+                                </h3>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-1.5 font-code">Nome do Projeto *</label>
+                                    <input type="text" id="proj-name" value="EduCode IFPR – Plataforma de Tutoria Gamificada" class="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between items-center mb-1.5">
+                                        <label class="block text-xs font-medium text-slate-300 font-code">Resumo Curto (Apresentação rápida) *</label>
+                                        <span class="text-[11px] font-code text-slate-400"><span id="char-count">148</span>/200</span>
+                                    </div>
+                                    <textarea id="proj-short-desc" rows="2" oninput="updateCharCount(this)" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">Sistema web interativo para auxílio no ensino de algoritmos aos ingressantes de Ciência da Computação utilizando desafios e badges em tempo real.</textarea>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-1.5 font-code">Descrição Completa e Escopo *</label>
+                                    <textarea rows="4" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">O EduCode IFPR busca reduzir a evasão nos primeiros períodos do curso de Ciência da Computação através de uma experiência gamificada de aprendizado. Possui módulo para professores cadastrarem exercícios em Python e C++, e dashboard em tempo real para os alunos submeterem soluções e visualizarem o ranking da turma.</textarea>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1.5 font-code">Trilha / Tema Principal *</label>
+                                        <select class="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                            <option>Inovação na Educação (EdTech)</option>
+                                            <option>Sustentabilidade e Meio Ambiente</option>
+                                            <option>Inteligência Artificial Aplicada</option>
+                                            <option>Acessibilidade e Inclusão Digital</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1.5 font-code">Tecnologias Usadas (Tags)</label>
+                                        <div class="bg-navy-900 border border-navy-600 rounded-xl p-2 flex flex-wrap items-center gap-1.5 min-h-[42px]">
+                                            <span class="bg-indigo-950 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded text-xs font-code flex items-center space-x-1">
+                                                <span>React</span>
+                                                <i class="fa-solid fa-xmark text-[10px] cursor-pointer hover:text-white"></i>
+                                            </span>
+                                            <span class="bg-indigo-950 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded text-xs font-code flex items-center space-x-1">
+                                                <span>Node.js</span>
+                                                <i class="fa-solid fa-xmark text-[10px] cursor-pointer hover:text-white"></i>
+                                            </span>
+                                            <span class="bg-indigo-950 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded text-xs font-code flex items-center space-x-1">
+                                                <span>Tailwind CSS</span>
+                                                <i class="fa-solid fa-xmark text-[10px] cursor-pointer hover:text-white"></i>
+                                            </span>
+                                            <input type="text" placeholder="+ Digite e enter" class="bg-transparent text-xs text-white focus:outline-none px-2 py-1 font-code flex-1 min-w-[80px]">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ETAPA 2: EQUIPE -->
+                            <div id="step-2-content" class="hidden bg-navy-800 p-6 rounded-2xl border border-navy-600 space-y-5">
+                                <div class="flex justify-between items-center border-b border-navy-700 pb-3">
+                                    <h3 class="font-heading font-bold text-white text-base flex items-center space-x-2">
+                                        <i class="fa-solid fa-users text-indigo-400"></i>
+                                        <span>Etapa 2: Integrantes da Equipe (3 a 5)</span>
+                                    </h3>
+                                    <button class="px-3 py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-medium transition flex items-center space-x-1.5">
+                                        <i class="fa-solid fa-user-plus"></i>
+                                        <span>Adicionar integrante</span>
+                                    </button>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <!-- Member 1 (Leader) -->
+                                    <div class="bg-navy-900 p-4 rounded-xl border border-navy-600 flex flex-wrap items-center justify-between gap-3">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white">LA</div>
+                                            <div>
+                                                <div class="text-sm font-semibold text-white flex items-center space-x-2">
+                                                    <span>Lucas Andrade</span>
+                                                    <span class="bg-cyan-950 text-cyan-300 border border-cyan-500/30 text-[10px] px-2 py-0.2 rounded font-code">Líder</span>
+                                                </div>
+                                                <div class="text-xs text-slate-400 font-code">lucas.bytecraft@aluno.ifpr.edu.br • Ciência da Computação (4º Semestre)</div>
+                                            </div>
+                                        </div>
+                                        <span class="text-xs text-slate-500 font-code">(Inscrição principal)</span>
+                                    </div>
+
+                                    <!-- Member 2 -->
+                                    <div class="bg-navy-900 p-4 rounded-xl border border-navy-600 flex flex-wrap items-center justify-between gap-3">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-9 h-9 rounded-full bg-cyan-600 flex items-center justify-center font-bold text-xs text-white">MS</div>
+                                            <div>
+                                                <div class="text-sm font-semibold text-white">Mariana Souza</div>
+                                                <div class="text-xs text-slate-400 font-code">mariana.souza@aluno.ifpr.edu.br • Ciência da Computação (2º Semestre)</div>
+                                            </div>
+                                        </div>
+                                        <button class="text-slate-400 hover:text-rose-400 text-xs"><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
+
+                                    <!-- Member 3 -->
+                                    <div class="bg-navy-900 p-4 rounded-xl border border-navy-600 flex flex-wrap items-center justify-between gap-3">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-9 h-9 rounded-full bg-purple-600 flex items-center justify-center font-bold text-xs text-white">PR</div>
+                                            <div>
+                                                <div class="text-sm font-semibold text-white">Pedro Rocha</div>
+                                                <div class="text-xs text-slate-400 font-code">pedro.rocha@aluno.ifpr.edu.br • Licenciatura em Computação</div>
+                                            </div>
+                                        </div>
+                                        <button class="text-slate-400 hover:text-rose-400 text-xs"><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ETAPA 3: ARQUIVOS E LINKS -->
+                            <div id="step-3-content" class="hidden bg-navy-800 p-6 rounded-2xl border border-navy-600 space-y-5">
+                                <h3 class="font-heading font-bold text-white text-base border-b border-navy-700 pb-3 flex items-center space-x-2">
+                                    <i class="fa-solid fa-folder-open text-indigo-400"></i>
+                                    <span>Etapa 3: Repositório, Mídia e Apresentação</span>
+                                </h3>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-1.5 font-code">Link do Repositório (GitHub / GitLab) *</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                                            <i class="fa-brands fa-github"></i>
+                                        </div>
+                                        <input type="url" id="input-github-url" value="https://github.com/equipe-bytecraft/educode-ifpr" class="w-full bg-navy-900 border border-navy-600 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 font-code">
+                                    </div>
+                                    <p class="text-[11px] text-slate-400 mt-1">Certifique-se de que o repositório esteja configurado como <strong>público</strong>.</p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-1.5 font-code">Link da Demonstração On-line ou Vídeo Pitch</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                                            <i class="fa-solid fa-globe"></i>
+                                        </div>
+                                        <input type="url" value="https://educode-ifpr-demo.vercel.app" class="w-full bg-navy-900 border border-navy-600 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 font-code">
+                                    </div>
+                                </div>
+
+                                <!-- Slide Upload Drag & Drop -->
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-1.5 font-code">Upload dos Slides do Pitch (Formato PDF) *</label>
+                                    <div class="border-2 border-dashed border-navy-600 hover:border-indigo-500 rounded-xl p-6 text-center bg-navy-900/50 cursor-pointer transition">
+                                        <i class="fa-solid fa-file-pdf text-3xl text-indigo-400 mb-2"></i>
+                                        <div class="text-xs font-semibold text-white">Apresentacao_Pitch_ByteCraft.pdf</div>
+                                        <div class="text-[11px] text-emerald-400 font-code mt-1"><i class="fa-solid fa-circle-check me-1"></i>Arquivo carregado (4.2 MB)</div>
+                                    </div>
+                                </div>
+
+                                <!-- Screenshots Upload -->
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-1.5 font-code">Capturas de Tela / Screenshots (Até 5 imagens)</label>
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <div class="bg-navy-900 border border-navy-600 rounded-lg p-2 text-center text-xs text-slate-400 font-code">
+                                            <i class="fa-solid fa-image text-cyan-400 text-lg block mb-1"></i>
+                                            screen_1.png
+                                        </div>
+                                        <div class="bg-navy-900 border border-navy-600 rounded-lg p-2 text-center text-xs text-slate-400 font-code">
+                                            <i class="fa-solid fa-image text-cyan-400 text-lg block mb-1"></i>
+                                            screen_2.png
+                                        </div>
+                                        <div class="border-2 border-dashed border-navy-600 rounded-lg p-2 flex flex-col items-center justify-center text-slate-500 hover:text-slate-300 cursor-pointer">
+                                            <i class="fa-solid fa-plus text-sm"></i>
+                                            <span class="text-[10px] mt-1">Adicionar</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ETAPA 4: REVISÃO E ENVIO -->
+                            <div id="step-4-content" class="hidden bg-navy-800 p-6 rounded-2xl border border-navy-600 space-y-6">
+                                <h3 class="font-heading font-bold text-white text-base border-b border-navy-700 pb-3 flex items-center space-x-2">
+                                    <i class="fa-solid fa-clipboard-check text-indigo-400"></i>
+                                    <span>Etapa 4: Revisão Final e Confirmação</span>
+                                </h3>
+
+                                <div class="space-y-4 text-xs">
+                                    <div class="bg-navy-900 p-4 rounded-xl border border-navy-600">
+                                        <span class="text-slate-400 font-code block mb-1">PROJETO</span>
+                                        <div class="text-sm font-bold text-white">EduCode IFPR – Plataforma de Tutoria Gamificada</div>
+                                        <div class="text-slate-300 mt-1">Trilha: Inovação na Educação (EdTech)</div>
+                                    </div>
+
+                                    <!-- Checklist Rules -->
+                                    <div class="bg-navy-900 p-4 rounded-xl border border-navy-600 space-y-2 font-code">
+                                        <span class="text-slate-400 block mb-2 font-sans font-semibold">Checklist de Requisitos para Submissão:</span>
+                                        <div class="flex items-center space-x-2 text-emerald-400">
+                                            <i class="fa-solid fa-check-circle"></i>
+                                            <span>Repositório no GitHub configurado como PÚBLICO</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2 text-emerald-400">
+                                            <i class="fa-solid fa-check-circle"></i>
+                                            <span>Link da demonstração/vídeo acessível</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2 text-emerald-400">
+                                            <i class="fa-solid fa-check-circle"></i>
+                                            <span>Slides do pitch (PDF) anexados com sucesso</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2 text-emerald-400">
+                                            <i class="fa-solid fa-check-circle"></i>
+                                            <span>Equipe completa (3 integrantes registrados)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dashboard Action Footer Buttons -->
+                            <div class="flex items-center justify-between pt-2">
+                                <button onclick="saveDraft()" id="btn-save-draft" class="px-5 py-3 bg-navy-800 hover:bg-navy-700 text-slate-200 font-semibold rounded-xl border border-navy-600 text-xs transition flex items-center space-x-2">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span>Salvar Rascunho</span>
+                                </button>
+
+                                <button onclick="openConfirmModal()" id="btn-submit-project" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 text-xs transition flex items-center space-x-2">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                    <span>Enviar Projeto Definitivo</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Sticky Right Sidebar -->
+                        <div class="lg:col-span-4 space-y-6">
+                            
+                            <!-- Countdown Card -->
+                            <div class="bg-navy-800 p-5 rounded-2xl border border-navy-600">
+                                <div class="text-xs font-code text-cyan-400 mb-2 flex items-center space-x-2">
+                                    <i class="fa-solid fa-clock"></i>
+                                    <span>PRAZO DE ENVIO</span>
+                                </div>
+                                <div class="text-2xl font-bold font-code text-white mb-1" id="sidebar-countdown">
+                                    04h 28m 12s
+                                </div>
+                                <p class="text-[11px] text-slate-400">Encerramento das submissões no sistema.</p>
+                            </div>
+
+                            <!-- Project Status Card -->
+                            <div class="bg-navy-800 p-5 rounded-2xl border border-navy-600">
+                                <div class="text-xs font-code text-slate-400 mb-2">STATUS DO PROJETO</div>
+                                <div id="sidebar-status-box" class="p-3 rounded-xl bg-amber-950/60 border border-amber-500/40 text-amber-300 text-xs flex items-center space-x-3">
+                                    <i class="fa-solid fa-pen-to-square text-base"></i>
+                                    <div>
+                                        <div class="font-bold">Rascunho em edição</div>
+                                        <div class="text-[10px] opacity-80">Você ainda pode alterar os dados.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Evaluation Results Card (Empty or Evaluated) -->
+                            <div class="bg-navy-800 p-5 rounded-2xl border border-navy-600">
+                                <div class="text-xs font-code text-indigo-400 mb-3 flex items-center justify-between">
+                                    <span>AVALIAÇÃO DA BANCA</span>
+                                    <i class="fa-solid fa-award"></i>
+                                </div>
+
+                                <!-- Empty State -->
+                                <div id="eval-empty-state" class="text-center py-6 border-2 border-dashed border-navy-700 rounded-xl p-4">
+                                    <i class="fa-solid fa-hourglass-half text-2xl text-slate-600 mb-2 block"></i>
+                                    <p class="text-xs text-slate-400">As notas e feedbacks aparecerão aqui após o julgamento da banca examinadora.</p>
+                                </div>
+
+                                <!-- Evaluated State -->
+                                <div id="eval-done-state" class="hidden space-y-3 font-code text-xs">
+                                    <div class="bg-navy-900 p-3 rounded-xl border border-indigo-500/30 text-center">
+                                        <div class="text-[10px] text-slate-400 uppercase">Nota Final Calculada</div>
+                                        <div class="text-3xl font-bold text-cyan-400 my-1">9.35 <span class="text-xs text-slate-500">/ 10</span></div>
+                                        <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[10px] border border-emerald-500/30">Aprovado • 2º Lugar Geral</span>
+                                    </div>
+
+                                    <div class="space-y-1.5 text-[11px]">
+                                        <div class="flex justify-between text-slate-300">
+                                            <span>Inovação (30%):</span>
+                                            <span class="font-bold text-white">9.5</span>
+                                        </div>
+                                        <div class="flex justify-between text-slate-300">
+                                            <span>Qualidade Técnica (25%):</span>
+                                            <span class="font-bold text-white">9.0</span>
+                                        </div>
+                                        <div class="flex justify-between text-slate-300">
+                                            <span>Funcionamento Demo (20%):</span>
+                                            <span class="font-bold text-white">10.0</span>
+                                        </div>
+                                        <div class="flex justify-between text-slate-300">
+                                            <span>Impacto e Utilidade (15%):</span>
+                                            <span class="font-bold text-white">9.0</span>
+                                        </div>
+                                        <div class="flex justify-between text-slate-300">
+                                            <span>Pitch (10%):</span>
+                                            <span class="font-bold text-white">9.0</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-navy-900 p-3 rounded-xl border border-navy-700 text-[11px] font-sans text-slate-300">
+                                        <span class="font-bold text-white block mb-1">Parecer dos Jurados:</span>
+                                        "Excelente protótipo funcional com forte impacto pedagógico para o curso de CC. A apresentação do pitch foi clara e objetiva."
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- CONFIRMATION MODAL (HIDDEN BY DEFAULT) -->
+    <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-navy-800 border border-navy-600 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-scaleUp">
+            <div class="w-12 h-12 rounded-full bg-indigo-950 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl mx-auto">
+                <i class="fa-solid fa-paper-plane"></i>
+            </div>
+            <div class="text-center">
+                <h3 class="font-heading font-bold text-lg text-white">Confirmar Envio do Projeto?</h3>
+                <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                    Você está prestes a submeter o projeto <strong>EduCode IFPR</strong>. Certifique-se de que o repositório no GitHub está público e todos os integrantes estão corretos.
+                </p>
+            </div>
+            <div class="flex items-center space-x-3 pt-2">
+                <button onclick="closeConfirmModal()" class="w-1/2 py-2.5 bg-navy-900 hover:bg-navy-700 text-slate-300 rounded-xl border border-navy-600 text-xs font-semibold">
+                    Revisar Dados
+                </button>
+                <button onclick="executeProjectSubmission()" class="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30">
+                    Sim, Enviar Agora
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE SCRIPT LOGIC -->
+    <script>
+        // --- VIEWPORT SWITCHER LOGIC ---
+        function setViewport(type) {
+            const frame = document.getElementById('viewport-frame');
+            const btnDesktop = document.getElementById('vp-desktop');
+            const btnMobile = document.getElementById('vp-mobile');
+
+            if (type === 'mobile') {
+                frame.style.width = '390px';
+                btnMobile.className = "px-3 py-1.5 rounded-lg font-medium flex items-center space-x-1.5 bg-navy-600 text-cyan-400 border border-cyan-500/30";
+                btnDesktop.className = "px-3 py-1.5 rounded-lg font-medium flex items-center space-x-1.5 text-slate-400 hover:text-white";
+            } else {
+                frame.style.width = '100%';
+                btnDesktop.className = "px-3 py-1.5 rounded-lg font-medium flex items-center space-x-1.5 bg-navy-600 text-cyan-400 border border-cyan-500/30";
+                btnMobile.className = "px-3 py-1.5 rounded-lg font-medium flex items-center space-x-1.5 text-slate-400 hover:text-white";
+            }
+        }
+
+        // --- SCREEN NAVIGATION SWITCHER ---
+        function switchScreen(screenName) {
+            document.getElementById('screen-login').classList.add('hidden');
+            document.getElementById('screen-landing').classList.add('hidden');
+            document.getElementById('screen-envio').classList.add('hidden');
+
+            const tabLogin = document.getElementById('tab-login');
+            const tabLanding = document.getElementById('tab-landing');
+            const tabEnvio = document.getElementById('tab-envio');
+
+            const activeClass = "px-3 py-1.5 rounded-lg font-medium transition-all flex items-center space-x-1.5 bg-indigo-600 text-white shadow";
+            const inactiveClass = "px-3 py-1.5 rounded-lg font-medium transition-all text-slate-400 hover:text-white flex items-center space-x-1.5";
+
+            tabLogin.className = inactiveClass;
+            tabLanding.className = inactiveClass;
+            tabEnvio.className = inactiveClass;
+
+            if (screenName === 'login') {
+                document.getElementById('screen-login').classList.remove('hidden');
+                tabLogin.className = activeClass;
+            } else if (screenName === 'landing') {
+                document.getElementById('screen-landing').classList.remove('hidden');
+                tabLanding.className = activeClass;
+            } else if (screenName === 'envio') {
+                document.getElementById('screen-envio').classList.remove('hidden');
+                tabEnvio.className = activeClass;
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- LOGIN ROLE SWITCHER ---
+        function selectRole(role) {
+            const roles = ['participante', 'jurado', 'organizacao'];
+            roles.forEach(r => {
+                const btn = document.getElementById(`role-${r}`);
+                if (r === role) {
+                    btn.className = "py-2 px-3 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow text-center transition-all";
+                } else {
+                    btn.className = "py-2 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white text-center transition-all";
+                }
+            });
+        }
+
+        // --- LOGIN STATES SIMULATOR ---
+        function setLoginState(state) {
+            const alertBox = document.getElementById('login-error-alert');
+            const btnText = document.getElementById('login-btn-text');
+            const btnSpinner = document.getElementById('login-btn-spinner');
+
+            document.getElementById('btn-state-standard').className = "px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600";
+            document.getElementById('btn-state-error').className = "px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600";
+            document.getElementById('btn-state-loading').className = "px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600";
+
+            alertBox.classList.add('hidden');
+            btnSpinner.classList.add('hidden');
+            btnText.innerText = "Entrar na Plataforma";
+
+            if (state === 'standard') {
+                document.getElementById('btn-state-standard').className = "px-2.5 py-1 rounded bg-indigo-600/30 text-indigo-300 border border-indigo-500/50";
+            } else if (state === 'error') {
+                document.getElementById('btn-state-error').className = "px-2.5 py-1 rounded bg-indigo-600/30 text-indigo-300 border border-indigo-500/50";
+                alertBox.classList.remove('hidden');
+            } else if (state === 'loading') {
+                document.getElementById('btn-state-loading').className = "px-2.5 py-1 rounded bg-indigo-600/30 text-indigo-300 border border-indigo-500/50";
+                btnSpinner.classList.remove('hidden');
+                btnText.innerText = "Autenticando...";
+            }
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            setLoginState('loading');
+            setTimeout(() => {
+                switchScreen('envio');
+            }, 800);
+        }
+
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        // --- ACCORDION TOGGLE ---
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById(`${id}-icon`);
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // --- DASHBOARD WIZARD STEP SWITCHER ---
+        function setWizardStep(step) {
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`step-${i}-content`).classList.add('hidden');
+                const tab = document.getElementById(`wizard-tab-${i}`);
+                tab.className = "flex items-center space-x-3 p-3 rounded-xl bg-navy-900 text-slate-400 hover:text-white border border-navy-700 text-left transition";
+            }
+
+            document.getElementById(`step-${step}-content`).classList.remove('hidden');
+            const activeTab = document.getElementById(`wizard-tab-${step}`);
+            activeTab.className = "flex items-center space-x-3 p-3 rounded-xl bg-indigo-600 text-white shadow text-left transition";
+        }
+
+        function updateCharCount(textarea) {
+            const count = textarea.value.length;
+            document.getElementById('char-count').innerText = count;
+        }
+
+        // --- DASHBOARD STATES SIMULATOR ---
+        function setDashboardState(state) {
+            const errorBanner = document.getElementById('dash-error-banner');
+            const statusBadge = document.getElementById('header-status-badge');
+            const statusBox = document.getElementById('sidebar-status-box');
+            const evalEmpty = document.getElementById('eval-empty-state');
+            const evalDone = document.getElementById('eval-done-state');
+            const submitBtn = document.getElementById('btn-submit-project');
+
+            errorBanner.classList.add('hidden');
+            evalEmpty.classList.remove('hidden');
+            evalDone.classList.add('hidden');
+
+            document.getElementById('dash-btn-draft').className = "px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600";
+            document.getElementById('dash-btn-error').className = "px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600";
+            document.getElementById('dash-btn-eval').className = "px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600";
+            document.getElementById('dash-btn-closed').className = "px-2.5 py-1 rounded bg-navy-700 text-slate-400 border border-navy-600";
+
+            if (state === 'draft') {
+                document.getElementById('dash-btn-draft').className = "px-2.5 py-1 rounded bg-indigo-600/30 text-indigo-300 border border-indigo-500/50";
+                statusBadge.innerText = "Rascunho";
+                statusBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-code bg-amber-950 text-amber-300 border border-amber-500/30";
+                statusBox.className = "p-3 rounded-xl bg-amber-950/60 border border-amber-500/40 text-amber-300 text-xs flex items-center space-x-3";
+                statusBox.innerHTML = `<i class="fa-solid fa-pen-to-square text-base"></i><div><div class="font-bold">Rascunho em edição</div><div class="text-[10px] opacity-80">Você ainda pode alterar os dados.</div></div>`;
+            } else if (state === 'error') {
+                document.getElementById('dash-btn-error').className = "px-2.5 py-1 rounded bg-indigo-600/30 text-indigo-300 border border-indigo-500/50";
+                errorBanner.classList.remove('hidden');
+                setWizardStep(1);
+            } else if (state === 'evaluated') {
+                document.getElementById('dash-btn-eval').className = "px-2.5 py-1 rounded bg-indigo-600/30 text-indigo-300 border border-indigo-500/50";
+                statusBadge.innerText = "Avaliado";
+                statusBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-code bg-emerald-950 text-emerald-300 border border-emerald-500/30";
+                statusBox.className = "p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs flex items-center space-x-3";
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-check text-base"></i><div><div class="font-bold">Avaliação Concluída</div><div class="text-[10px] opacity-80">Notas disponíveis abaixo.</div></div>`;
+                evalEmpty.classList.add('hidden');
+                evalDone.classList.remove('hidden');
+            } else if (state === 'closed') {
+                document.getElementById('dash-btn-closed').className = "px-2.5 py-1 rounded bg-indigo-600/30 text-indigo-300 border border-indigo-500/50";
+                statusBadge.innerText = "Encerrado";
+                statusBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-code bg-rose-950 text-rose-300 border border-rose-500/30";
+                statusBox.className = "p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs flex items-center space-x-3";
+                statusBox.innerHTML = `<i class="fa-solid fa-lock text-base"></i><div><div class="font-bold">Prazo de envio encerrado</div><div class="text-[10px] opacity-80">Edições bloqueadas pelo sistema.</div></div>`;
+            }
+        }
+
+        // --- MODAL ACTIONS ---
+        function openConfirmModal() {
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+        }
+        function executeProjectSubmission() {
+            closeConfirmModal();
+            setDashboardState('evaluated');
+            alert('Projeto enviado com sucesso! A banca examinadora iniciará a avaliação.');
+        }
+
+        function saveDraft() {
+            alert('Rascunho salvo com sucesso!');
+        }
+
+        // --- LIVE COUNTDOWN TIMER SIMULATION ---
+        let seconds = 19;
+        let mins = 42;
+        let hours = 8;
+        let days = 14;
+
+        setInterval(() => {
+            seconds--;
+            if (seconds < 0) {
+                seconds = 59;
+                mins--;
+                if (mins < 0) {
+                    mins = 59;
+                    hours--;
+                }
+            }
+            const secStr = seconds < 10 ? '0' + seconds : seconds;
+            const minStr = mins < 10 ? '0' + mins : mins;
+            const hrStr = hours < 10 ? '0' + hours : hours;
+
+            const elSec = document.getElementById('cd-secs');
+            const elMin = document.getElementById('cd-mins');
+            const elHr = document.getElementById('cd-hours');
+            const elSide = document.getElementById('sidebar-countdown');
+
+            if (elSec) elSec.innerText = secStr;
+            if (elMin) elMin.innerText = minStr;
+            if (elHr) elHr.innerText = hrStr;
+            if (elSide) elSide.innerText = `${hrStr}h ${minStr}m ${secStr}s`;
+        }, 1000);
+    </script>
+</body>
+</html>
